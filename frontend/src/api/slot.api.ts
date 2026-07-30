@@ -1,14 +1,13 @@
-import { API_URL } from "./api";
+import api from "./api";
+
 import type { AppointmentSlot } from "../types/slot";
 
-export async function getAvailableSlots(
+export const getAvailableSlots = async (
   doctorId: number,
-): Promise<AppointmentSlot[]> {
-  const response = await fetch(`${API_URL}/doctors/${doctorId}/slots`);
+): Promise<AppointmentSlot[]> => {
+  const response = await api.get<AppointmentSlot[]>(
+    `/doctors/${doctorId}/slots`,
+  );
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch appointment slots.");
-  }
-
-  return response.json();
-}
+  return response.data;
+};

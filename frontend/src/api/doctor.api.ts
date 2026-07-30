@@ -1,12 +1,9 @@
-import { API_URL } from "./api";
+import api from "./api";
+
 import type { Doctor } from "../types/doctor";
 
-export async function getDoctors(): Promise<Doctor[]> {
-  const response = await fetch(`${API_URL}/doctors`);
+export const getDoctors = async (): Promise<Doctor[]> => {
+  const response = await api.get<Doctor[]>("/doctors");
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch doctors.");
-  }
-
-  return response.json();
-}
+  return response.data;
+};
