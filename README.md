@@ -133,72 +133,121 @@ were intentionally not implemented to keep the scope focused on the required boo
 
 ## Prerequisites
 
-- Node.js
-- PostgreSQL
+- Node.js (v20 or later)
+- Docker Desktop (or Docker Engine with Docker Compose)
 
 ---
 
-## Backend
+## 1. Start PostgreSQL
 
-Install dependencies
+From the project root:
+
+```bash
+docker compose up -d
+```
+
+This starts a PostgreSQL database with the configuration expected by the backend.
+
+---
+
+## 2. Backend Setup
+
+Navigate to the backend project:
 
 ```bash
 cd backend
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-Create a `.env` file
+Create a `.env` file from `.env.example`.
+
+Example:
 
 ```env
-DATABASE_URL=your_database_connection_string
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/consultation_booking?schema=public"
 PORT=3000
 ```
 
-Seed the database
+Generate the Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Apply the database schema:
+
+```bash
+npx prisma db push
+```
+
+Seed the database:
 
 ```bash
 npm run seed
 ```
 
-Start the backend
+Start the backend server:
 
 ```bash
 npm run dev
+```
+
+The backend runs on:
+
+```text
+http://localhost:3000
 ```
 
 ---
 
-## Frontend
+## 3. Frontend Setup
 
-Install dependencies
+Open a new terminal:
 
 ```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
 ```
 
-Start the frontend
+Start the frontend:
 
 ```bash
 npm run dev
+```
+
+The frontend runs on:
+
+```text
+http://localhost:5173
 ```
 
 ---
 
 # Running Tests
 
-The automated test suite resets the database before execution.
+The automated test suite reseeds the database before execution.
 
 ```bash
 cd backend
+
 npm test
 ```
 
-The test verifies that two concurrent booking requests for the same appointment slot result in:
+The concurrency test verifies that two simultaneous booking requests for the same appointment slot result in:
 
 - Exactly one successful booking (HTTP 201)
-- Exactly one rejected booking (HTTP 409)
-- Exactly one booking record stored in the database
+- Exactly one rejected booking (HTTP 409 Conflict)
+- Exactly one booking record persisted in the database
 
 ---
 
@@ -220,35 +269,53 @@ Prisma
 PostgreSQL
 ```
 
-Responsibilities are separated to improve maintainability and testability.
+Each layer has a single responsibility:
+
+- **Controller** – Handles HTTP requests and responses.
+- **Service** – Contains business logic.
+- **Repository** – Encapsulates database access.
+- **Prisma** – ORM for interacting with PostgreSQL.
+
+This separation improves readability, maintainability, and testability.
 
 ---
 
 ## Transaction
 
-Booking creation and slot reservation are executed within a single database transaction to ensure data consistency.
+Booking creation and appointment slot reservation are executed within a single database transaction to ensure consistency.
+
+If any step fails, the transaction is rolled back.
 
 ---
 
 ## Optimistic Concurrency Control
 
-Instead of locking database rows, the application performs an atomic conditional update.
+To prevent double booking, the application uses an atomic conditional update rather than explicit database locks.
 
-- The slot is updated only if its current status is `AVAILABLE`.
-- If another request has already booked the slot, no rows are updated.
-- The request returns **HTTP 409 Conflict**.
+The appointment slot is updated only if:
 
-This approach prevents double booking while remaining simple and scalable.
+```text
+status = AVAILABLE
+```
+
+If another concurrent request has already booked the slot:
+
+- Zero rows are updated.
+- The booking is rejected.
+- The API returns **HTTP 409 Conflict**.
+
+This approach keeps the implementation simple while remaining safe under concurrent requests.
 
 ---
 
-# Future Improvements
+# Assumptions & Scope
 
-Potential enhancements include:
+To keep the implementation focused on the assignment requirements, the following features were intentionally excluded:
 
-- Authentication and authorization
-- Booking cancellation
-- Additional booking lifecycle states
+- User authentication and authorization
+- Appointment cancellation
+- Additional booking lifecycle states (Pending, Cancelled, Completed)
 - Pagination and filtering
-- Deployment to a cloud environment
-- CI/CD pipeline
+- Cloud deployment
+
+The implementation prioritizes correctness, concurrency handling, and maintainable architecture over additional features.
