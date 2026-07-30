@@ -136,6 +136,8 @@ were intentionally not implemented to keep the scope focused on the required boo
 - Node.js (v20 or later)
 - Docker Desktop (or Docker Engine with Docker Compose)
 
+> **Note:** Ensure Docker Desktop (or Docker Engine) is running before starting the PostgreSQL container.
+
 ---
 
 ## 1. Start PostgreSQL
@@ -164,7 +166,15 @@ Install dependencies:
 npm install
 ```
 
-Create a `.env` file from `.env.example`.
+Create a `.env` file in the **backend** directory using `.env.example` as a reference.
+
+```text
+backend/
+├── .env
+├── .env.example
+├── package.json
+└── ...
+```
 
 Example:
 
