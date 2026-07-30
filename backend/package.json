@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "seed": "tsx prisma/seed.ts",
+    "test": "npm run seed && mocha --require tsx/cjs \"test/**/*.test.ts\""
   },
   "keywords": [],
   "author": "",
@@ -20,13 +22,16 @@
     "prisma": "^6.19.3"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.3",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^26.1.2",
+    "@types/supertest": "^7.2.1",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.6",
+    "supertest": "^7.2.2",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

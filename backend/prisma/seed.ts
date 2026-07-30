@@ -3,10 +3,14 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function seed() {
-  await prisma.booking.deleteMany();
-  await prisma.appointmentSlot.deleteMany();
-  await prisma.patient.deleteMany();
-  await prisma.doctor.deleteMany();
+  await prisma.$executeRawUnsafe(`
+    TRUNCATE TABLE
+      "Booking",
+      "AppointmentSlot",
+      "Patient",
+      "Doctor"
+    RESTART IDENTITY CASCADE;
+  `);
 
   const doctors = await prisma.doctor.createManyAndReturn({
     data: [
