@@ -20,17 +20,6 @@ export async function findAvailableSlotsByDoctorId(doctorId: number) {
   });
 }
 
-export async function findSlotById(
-  tx: Prisma.TransactionClient,
-  slotId: number,
-) {
-  return tx.appointmentSlot.findUnique({
-    where: {
-      id: slotId,
-    },
-  });
-}
-
 export async function updateAppointmentSlotStatus(
   tx: Prisma.TransactionClient,
   slotId: number,
