@@ -1,5 +1,5 @@
 import prisma from "../config/prisma.js";
-import { AppointmentSlotStatus } from "@prisma/client";
+import { AppointmentSlotStatus, Prisma } from "@prisma/client";
 
 export async function findAvailableSlotsByDoctorId(doctorId: number) {
   return prisma.appointmentSlot.findMany({
@@ -16,6 +16,34 @@ export async function findAvailableSlotsByDoctorId(doctorId: number) {
     },
     orderBy: {
       startTime: "asc",
+    },
+  });
+}
+
+export async function findSlotById(
+  tx: Prisma.TransactionClient,
+  slotId: number,
+) {
+  return tx.appointmentSlot.findUnique({
+    where: {
+      id: slotId,
+    },
+  });
+}
+
+export async function updateAppointmentSlotStatus(
+  tx: Prisma.TransactionClient,
+  slotId: number,
+  currentStatus: AppointmentSlotStatus,
+  newStatus: AppointmentSlotStatus,
+) {
+  return tx.appointmentSlot.updateMany({
+    where: {
+      id: slotId,
+      status: currentStatus,
+    },
+    data: {
+      status: newStatus,
     },
   });
 }
